@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVault | Password Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #06d6a0;
+            --danger: #ef476f;
+            --warning: #ffd166;
+            --dark: #121826;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --border: #e9ecef;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1a1f36;
+            --sidebar-hover: #2d3748;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* App Wrapper */
+        .app-wrapper {
+            display: flex;
+            background: var(--light);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            min-height: 90vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .logo-icon {
+            background: var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            list-style: none;
+            margin-bottom: 40px;
+        }
+
+        .nav-links li {
+            margin-bottom: 8px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: var(--sidebar-hover);
+            color: white;
+        }
+
+        .nav-links i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .master-password-section {
+            margin-top: auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .master-password-section h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .password-strength {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 70%;
+            background: var(--success);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card i {
+            font-size: 28px;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Password Table */
+        .password-table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 45px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px;
+            font-weight: 600;
+            color: var(--gray);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .password-cell {
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .close-modal {
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .password-input-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+        }
+
+        .generate-password-btn {
+            margin-top: 10px;
+            background: var(--light);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .generate-password-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .strength-meter {
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .strength-indicator {
+            height: 100%;
+            width: 0%;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak { width: 33%; background: var(--danger); }
+        .strength-medium { width: 66%; background: var(--warning); }
+        .strength-strong { width: 100%; background: var(--success); }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--dark);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1001;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            background: var(--success);
+        }
+
+        .toast-error {
+            background: var(--danger);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: var(--border);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+
+        .empty-state p {
+            color: var(--gray);
+            margin-bottom: 30px;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .app-wrapper {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 20px;
+            }
+            
+            .nav-links {
+                display: flex;
+                gap: 10px;
+                overflow-x: auto;
+                margin-bottom: 20px;
+            }
+            
+            .nav-links li {
+                margin-bottom: 0;
+            }
+            
+            .nav-links a {
+                white-space: nowrap;
+            }
+            
+            .master-password-section {
+                margin-top: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-wrapper">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="logo-text">SecureVault</div>
+                </div>
+                
+                <ul class="nav-links">
+                    <li><a href="#" class="active" id="nav-dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="#" id="nav-passwords"><i class="fas fa-key"></i> All Passwords</a></li>
+                    <li><a href="#" id="nav-categories"><i class="fas fa-folder"></i> Categories</a></li>
+                    <li><a href="#" id="nav-generator"><i class="fas fa-bolt"></i> Password Generator</a></li>
+                    <li><a href="#" id="nav-security"><i class="fas fa-shield-alt"></i> Security</a></li>
+                    <li><a href="#" id="nav-settings"><i class="fas fa-cog"></i> Settings</a></li>
+                </ul>
+                
+                <div class="master-password-section">
+                    <h3>Master Password</h3>
+                    <div class="password-strength">
+                        <div class="strength-bar"></div>
+                    </div>
+                    <p style="font-size: 14px; margin-top: 10px; color: #cbd5e1;">Last changed: 15 days ago</p>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Header -->
+                <div class="header">
+                    <h1>Password Manager</h1>
+                    <div class="user-info">
+                        <div class="user-avatar">JD</div>
+                        <div>
+                            <div style="font-weight: 600;">John Doe</div>
+                            <div style="font-size: 14px; color: var(--gray);">Free Plan</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <i class="fas fa-key"></i>
+                        <h3>Total Passwords</h3>
+                        <div class="value" id="total-passwords">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Security Score</h3>
+                        <div class="value" id="security-score">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Weak Passwords</h3>
+                        <div class="value" id="weak-passwords">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-sync-alt"></i>
+                        <h3>Last Updated</h3>
+                        <div class="value" id="last-updated">Today</div>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="actions">
+                    <button class="btn btn-primary" id="add-password-btn">
+                        <i class="fas fa-plus"></i> Add New Password
+                    </button>
+                    <button class="btn btn-secondary" id="import-btn">
+                        <i class="fas fa-file-import"></i> Import Passwords
+                    </button>
+                    <button class="btn btn-secondary" id="export-btn">
+                        <i class="fas fa-file-export"></i> Export Passwords
+                    </button>
+                    <button class="btn btn-success" id="generate-password-btn">
+                        <i class="fas fa-bolt"></i> Generate Password
+                    </button>
+                </div>
+                
+                <!-- Password Table -->
+                <div class="password-table-container">
+                    <div class="table-header">
+                        <h2 style="font-size: 24px; font-weight: 700;">Saved Passwords</h2>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-input" placeholder="Search passwords...">
+                        </div>
+                    </div>
+                    
+                    <div id="passwords-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Website/App</th>
+                                    <th>Username</th>
+                                    <th>Password</th>
+                                    <th>Category</th>
+                                    <th>Last Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="passwords-tbody">
+                                <!-- Passwords will be loaded here -->
+                            </tbody>
+                        </table>
+                        
+                        <!-- Empty State -->
+                        <div class="empty-state" id="empty-state">
+                            <i class="fas fa-key"></i>
+                            <h3>No Passwords Yet</h3>
+                            <p>You haven't saved any passwords yet. Add your first password to get started.</p>
+                            <button class="btn btn-primary" id="add-first-password">
+                                <i class="fas fa-plus"></i> Add First Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Password Modal -->
+    <div class="modal" id="password-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add New Password</h2>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            
+            <form id="password-form">
+                <input type="hidden" id="password-id">
+                
+                <div class="form-group">
+                    <label for="website">Website/App Name</label>
+                    <input type="text" id="website" class="form-control" placeholder="e.g., Google, Facebook" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Username/Email</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter username or email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input-container">
+                        <input type="password" id="password" class="form-control" placeholder="Enter password" required>
+                        <button type="button" class="toggle-password" id="toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="strength-meter">
+                        <div class="strength-indicator" id="strength-indicator"></div>
+                    </div>
+                    
+                    <button type="button" class="generate-password-btn" id="generate-password-modal">
+                        <i class="fas fa-bolt"></i> Generate Strong Password
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" class="form-control">
+                        <option value="Social Media">Social Media</option>
+                        <option value="Work">Work</option>
+                        <option value="Personal">Personal</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">Notes (Optional)</label>
+                    <textarea id="notes" class="form-control" rows="3" placeholder="Add any additional notes..."></textarea>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Generate Password Modal -->
+    <div class="modal" id="generator-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Generate Strong Password</h2>
+                <button class="close-modal" id="close-generator-modal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="password-length">Password Length</label>
+                <input type="range" id="password-length" min="8" max="32" value="16" class="form-control">
+                <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                    <span>8</span>
+                    <span id="length-value">16</span>
+                    <span>32</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="include-uppercase" checked>
+                    Include Uppercase Letters (A-Z)
+                </label>
+                
+                <label style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                    <input type="checkbox" id="include-lowercase" checked>
+                    Include Lowercase Letters (a-z)
+                </label>
+                
+                <label style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                    <input type="checkbox" id="include-numbers" checked>
+                    Include Numbers (0-9)
+                </label>
+                
+                <label style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                    <input type="checkbox" id="include-symbols" checked>
+                    Include Symbols (!@#$%^&*)
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label>Generated Password</label>
+                <div class="password-input-container">
+                    <input type="text" id="generated-password" class="form-control" readonly>
+                    <button type="button" class="toggle-password" id="copy-generated-password">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="regenerate-password">
+                    <i class="fas fa-sync-alt"></i> Regenerate
+                </button>
+                <button type="button" class="btn btn-primary" id="use-password">Use This Password</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Password saved successfully!</span>
+    </div>
+
+    <script>
+        // Sample data - In a real app, this would come from a backend
+        let passwords = JSON.parse(localStorage.getItem('passwords')) || [
+            {
+                id: 1,
+                website: "Google",
+                username: "john.doe@gmail.com",
+                password: "MySecurePass123!",
+                category: "Personal",
+                notes: "Main Google account",
+                lastUpdated: "2023-10-15"
+            },
+            {
+                id: 2,
+                website: "Facebook",
+                username: "johndoe",
+                password: "FbPass2023#",
+                category: "Social Media",
+                notes: "",
+                lastUpdated: "2023-10-10"
+            },
+            {
+                id: 3,
+                website: "Netflix",
+                username: "john@doe.com",
+                password: "Netflix2023$",
+                category: "Entertainment",
+                notes: "Family account",
+                lastUpdated: "2023-10-05"
+            }
+        ];
+        
+        let currentPasswordId = null;
+        
+        // DOM Elements
+        const passwordsTbody = document.getElementById('passwords-tbody');
+        const emptyState = document.getElementById('empty-state');
+        const passwordModal = document.getElementById('password-modal');
+        const generatorModal = document.getElementById('generator-modal');
+        const passwordForm = document.getElementById('password-form');
+        const searchInput = document.getElementById('search-input');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        
+        // Stats elements
+        const totalPasswordsEl = document.getElementById('total-passwords');
+        const securityScoreEl = document.getElementById('security-score');
+        const weakPasswordsEl = document.getElementById('weak-passwords');
+        const lastUpdatedEl = document.getElementById('last-updated');
+        
+        // Initialize the app
+        function initApp() {
+            updateStats();
+            renderPasswords();
+            setupEventListeners();
+        }
+        
+        // Update statistics
+        function updateStats() {
+            totalPasswordsEl.textContent = passwords.length;
+            
+            // Calculate security score (simplified)
+            let weakCount = 0;
+            passwords.forEach(pwd => {
+                if (pwd.password.length < 8) weakCount++;
+            });
+            
+            weakPasswordsEl.textContent = weakCount;
+            
+            const score = passwords.length > 0 ? 
+                Math.max(10, 100 - (weakCount / passwords.length * 100)) : 0;
+            securityScoreEl.textContent = `${Math.round(score)}%`;
+            
+            // Update last updated
+            if (passwords.length > 0) {
+                const dates = passwords.map(p => new Date(p.lastUpdated));
+                const latest = new Date(Math.max(...dates));
+                const today = new Date();
+                
+                if (latest.toDateString() === today.toDateString()) {
+                    lastUpdatedEl.textContent = "Today";
+                } else {
+                    const diffTime = Math.abs(today - latest);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    lastUpdatedEl.textContent = `${diffDays} days ago`;
+                }
+            } else {
+                lastUpdatedEl.textContent = "Never";
+            }
+            
+            // Update master password strength
+            const strengthBar = document.querySelector('.strength-bar');
+            strengthBar.style.width = `${score}%`;
+            strengthBar.style.background = score > 70 ? 'var(--success)' : 
+                                          score > 40 ? 'var(--warning)' : 
+                                          'var(--danger)';
+        }
+        
+        // Render passwords in table
+        function renderPasswords(filter = '') {
+            passwordsTbody.innerHTML = '';
+            
+            const filteredPasswords = passwords.filter(pwd => 
+                pwd.website.toLowerCase().includes(filter.toLowerCase()) ||
+                pwd.username.toLowerCase().includes(filter.toLowerCase()) ||
+                pwd.category.toLowerCase().includes(filter.toLowerCase())
+            );
+            
+            if (filteredPasswords.length === 0) {
+                emptyState.style.display = 'block';
+                document.querySelector('table').style.display = 'none';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            document.querySelector('table').style.display = 'table';
+            
+            filteredPasswords.forEach(password => {
+                const row = document.createElement('tr');
+                
+                // Mask password for display
+                const maskedPassword = '•'.repeat(Math.min(12, password.password.length));
+                
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 36px; height: 36px; border-radius: 8px; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                                ${password.website.charAt(0).toUpperCase()}
+                            </div>
+                            <span style="font-weight: 600;">${password.website}</span>
+                        </div>
+                    </td>
+                    <td>${password.username}</td>
+                    <td class="password-cell">
+                        <span class="masked-password">${maskedPassword}</span>
+                        <span class="actual-password" style="display: none;">${password.password}</span>
+                    </td>
+                    <td>
+                        <span style="padding: 6px 12px; background: #e9ecef; border-radius: 20px; font-size: 14px;">
+                            ${password.category}
+                        </span>
+                    </td>
+                    <td>${password.lastUpdated}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view-password" data-id="${password.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit-password" data-id="${password.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn copy-password" data-id="${password.id}">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="action-btn delete-password" data-id="${password.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                passwordsTbody.appendChild(row);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.view-password').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    togglePasswordVisibility(id);
+                });
+            });
+            
+            document.querySelectorAll('.edit-password').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    editPassword(id);
+                });
+            });
+            
+            document.querySelectorAll('.copy-password').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    copyPassword(id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-password').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    deletePassword(id);
+                });
+            });
+        }
+        
+        // Toggle password visibility
+        function togglePasswordVisibility(id) {
+            const password = passwords.find(p => p.id === id);
+            if (!password) return;
+            
+            const row = document.querySelector(`[data-id="${id}"]`).closest('tr');
+            const maskedSpan = row.querySelector('.masked-password');
+            const actualSpan = row.querySelector('.actual-password');
+            const eyeIcon = row.querySelector('.view-password i');
+            
+            if (maskedSpan.style.display !== 'none') {
+                maskedSpan.style.display = 'none';
+                actualSpan.style.display = 'inline';
+                eyeIcon.className = 'fas fa-eye-slash';
+            } else {
+                maskedSpan.style.display = 'inline';
+                actualSpan.style.display = 'none';
+                eyeIcon.className = 'fas fa-eye';
+            }
+        }
+        
+        // Copy password to clipboard
+        function copyPassword(id) {
+            const password = passwords.find(p => p.id === id);
+            if (!password) return;
+            
+            navigator.clipboard.writeText(password.password)
+                .then(() => {
+                    showToast('Password copied to clipboard!', 'success');
+                })
+                .catch(err => {
+                    showToast('Failed to copy password', 'error');
+                });
+        }
+        
+        // Edit password
+        function editPassword(id) {
+            const password = passwords.find(p => p.id === id);
+            if (!password) return;
+            
+            currentPasswordId = id;
+            document.getElementById('modal-title').textContent = 'Edit Password';
+            document.getElementById('website').value = password.website;
+            document.getElementById('username').value = password.username;
+            document.getElementById('password').value = password.password;
+            document.getElementById('category').value = password.category;
+            document.getElementById('notes').value = password.notes || '';
+            
+            updatePasswordStrength(password.password);
+            passwordModal.classList.add('active');
+        }
+        
+        // Delete password
+        function deletePassword(id) {
+            if (confirm('Are you sure you want to delete this password?')) {
+                passwords = passwords.filter(p => p.id !== id);
+                saveToLocalStorage();
+                updateStats();
+                renderPasswords(searchInput.value);
+                showToast('Password deleted successfully!', 'success');
+            }
+        }
+        
+        // Add new password
+        function addNewPassword() {
+            currentPasswordId = null;
+            document.getElementById('modal-title').textContent = 'Add New Password';
+            document.getElementById('password-form').reset();
+            document.getElementById('category').value = 'Personal';
+            document.getElementById('strength-indicator').className = 'strength-indicator';
+            passwordModal.classList.add('active');
+        }
+        
+        // Generate password
+        function generatePassword() {
+            const length = parseInt(document.getElementById('password-length').value);
+            const includeUpper = document.getElementById('include-uppercase').checked;
+            const includeLower = document.getElementById('include-lowercase').checked;
+            const includeNumbers = document.getElementById('include-numbers').checked;
+            const includeSymbols = document.getElementById('include-symbols').checked;
+            
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const numbers = '0123456789';
+            const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            
+            let chars = '';
+            if (includeUpper) chars += uppercase;
+            if (includeLower) chars += lowercase;
+            if (includeNumbers) chars += numbers;
+            if (includeSymbols) chars += symbols;
+            
+            // Ensure at least one character set is selected
+            if (chars === '') chars = lowercase + uppercase + numbers;
+            
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * chars.length);
+                password += chars[randomIndex];
+            }
+            
+            document.getElementById('generated-password').value = password;
+            updatePasswordStrength(password);
+        }
+        
+        // Update password strength indicator
+        function updatePasswordStrength(password) {
+            let strength = 0;
+            
+            // Length check
+            if (password.length >= 8) strength += 25;
+            if (password.length >= 12) strength += 15;
+            
+            // Character variety checks
+            if (/[A-Z]/.test(password)) strength += 20;
+            if (/[a-z]/.test(password)) strength += 20;
+            if (/[0-9]/.test(password)) strength += 20;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+            
+            // Update indicator
+            const indicator = document.getElementById('strength-indicator');
+            indicator.style.width = `${Math.min(strength, 100)}%`;
+            
+            if (strength < 40) {
+                indicator.className = 'strength-indicator strength-weak';
+            } else if (strength < 70) {
+                indicator.className = 'strength-indicator strength-medium';
+            } else {
+                indicator.className = 'strength-indicator strength-strong';
+            }
+        }
+        
+        // Save to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('passwords', JSON.stringify(passwords));
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            toast.className = `toast ${type === 'success' ? 'toast-success' : 'toast-error'}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add password button
+            document.getElementById('add-password-btn').addEventListener('click', addNewPassword);
+            document.getElementById('add-first-password').addEventListener('click', addNewPassword);
+            
+            // Generate password button
+            document.getElementById('generate-password-btn').addEventListener('click', () => {
+                generatorModal.classList.add('active');
+                generatePassword();
+            });
+            
+            document.getElementById('generate-password-modal').addEventListener('click', () => {
+                passwordModal.classList.remove('active');
+                generatorModal.classList.add('active');
+                generatePassword();
+            });
+            
+            // Modal close buttons
+            document.getElementById('close-modal').addEventListener('click', () => {
+                passwordModal.classList.remove('active');
+            });
+            
+            document.getElementById('close-generator-modal').addEventListener('click', () => {
+                generatorModal.classList.remove('active');
+            });
+            
+            document.getElementById('cancel-btn').addEventListener('click', () => {
+                passwordModal.classList.remove('active');
+            });
+            
+            // Close modal on outside click
+            [passwordModal, generatorModal].forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Password form submit
+            passwordForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const website = document.getElementById('website').value;
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const category = document.getElementById('category').value;
+                const notes = document.getElementById('notes').value;
+                
+                const today = new Date().toISOString().split('T')[0];
+                
+                if (currentPasswordId) {
+                    // Update existing password
+                    const index = passwords.findIndex(p => p.id === currentPasswordId);
+                    if (index !== -1) {
+                        passwords[index] = {
+                            ...passwords[index],
+                            website,
+                            username,
+                            password,
+                            category,
+                            notes,
+                            lastUpdated: today
+                        };
+                    }
+                } else {
+                    // Add new password
+                    const newId = passwords.length > 0 ? Math.max(...passwords.map(p => p.id)) + 1 : 1;
+                    passwords.push({
+                        id: newId,
+                        website,
+                        username,
+                        password,
+                        category,
+                        notes,
+                        lastUpdated: today
+                    });
+                }
+                
+                saveToLocalStorage();
+                updateStats();
+                renderPasswords(searchInput.value);
+                passwordModal.classList.remove('active');
+                
+                showToast(`Password ${currentPasswordId ? 'updated' : 'saved'} successfully!`, 'success');
+            });
+            
+            // Toggle password visibility
+            document.getElementById('toggle-password').addEventListener('click', function() {
+                const passwordInput = document.getElementById('password');
+                const icon = this.querySelector('i');
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.className = 'fas fa-eye-slash';
+                } else {
+                    passwordInput.type = 'password';
+                    icon.className = 'fas fa-eye';
+                }
+            });
+            
+            // Password strength real-time update
+            document.getElementById('password').addEventListener('input', function() {
+                updatePasswordStrength(this.value);
+            });
+            
+            // Generator modal events
+            document.getElementById('password-length').addEventListener('input', function() {
+                document.getElementById('length-value').textContent = this.value;
+                generatePassword();
+            });
+            
+            document.querySelectorAll('#generator-modal input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', generatePassword);
+            });
+            
+            document.getElementById('regenerate-password').addEventListener('click', generatePassword);
+            
+            document.getElementById('copy-generated-password').addEventListener('click', function() {
+                const password = document.getElementById('generated-password').value;
+                navigator.clipboard.writeText(password)
+                    .then(() => {
+                        showToast('Password copied to clipboard!', 'success');
+                    });
+            });
+            
+            document.getElementById('use-password').addEventListener('click', function() {
+                const password = document.getElementById('generated-password').value;
+                document.getElementById('password').value = password;
+                updatePasswordStrength(password);
+                generatorModal.classList.remove('active');
+                passwordModal.classList.add('active');
+            });
+            
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                renderPasswords(this.value);
+            });
+            
+            // Export functionality
+            document.getElementById('export-btn').addEventListener('click', function() {
+                const dataStr = JSON.stringify(passwords, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = 'passwords_backup.json';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                showToast('Passwords exported successfully!', 'success');
+            });
+            
+            // Import functionality
+            document.getElementById('import-btn').addEventListener('click', function() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                
+                input.onchange = e => { 
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        try {
+                            const importedPasswords = JSON.parse(event.target.result);
+                            
+                            if (Array.isArray(importedPasswords)) {
+                                // Merge imported passwords with existing ones
+                                const existingIds = passwords.map(p => p.id);
+                                let maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
+                                
+                                importedPasswords.forEach(pwd => {
+                                    if (!existingIds.includes(pwd.id)) {
+                                        passwords.push(pwd);
+                                    } else {
+                                        // Assign new ID to avoid conflicts
+                                        pwd.id = ++maxId;
+                                        passwords.push(pwd);
+                                    }
+                                });
+                                
+                                saveToLocalStorage();
+                                updateStats();
+                                renderPasswords();
+                                showToast(`${importedPasswords.length} passwords imported successfully!`, 'success');
+                            } else {
+                                showToast('Invalid file format', 'error');
+                            }
+                        } catch (err) {
+                            showToast('Error parsing JSON file', 'error');
+                        }
+                    };
+                    
+                    reader.readAsText(file);
+                };
+                
+                input.click();
+            });
+            
+            // Navigation links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // In a real app, this would load different views
+                    const page = this.getAttribute('id').replace('nav-', '');
+                    showToast(`Switched to ${page} page`, 'success');
+                });
+            });
+        }
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
