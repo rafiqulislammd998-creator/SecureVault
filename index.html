@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f19" />
+  <title>Notebook</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">N</div>
+        <div>
+          <div class="title">Notebook</div>
+          <div class="subtitle" id="statusText">Connecting…</div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <div class="seg" role="tablist" aria-label="View mode">
+          <button class="segBtn active" id="modeEditBtn" role="tab" aria-selected="true">Edit</button>
+          <button class="segBtn" id="modeSplitBtn" role="tab" aria-selected="false">Split</button>
+          <button class="segBtn" id="modePreviewBtn" role="tab" aria-selected="false">Preview</button>
+        </div>
+
+        <button class="iconBtn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+          <span class="icon">🌙</span>
+        </button>
+
+        <button class="btn ghost" id="exportBtn" title="Export notes">Export</button>
+        <label class="btn ghost fileBtn" title="Import notes">
+          Import
+          <input type="file" id="importInput" accept="application/json" />
+        </label>
+
+        <button class="btn primary" id="newNoteBtn">New note</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Sidebar -->
+      <aside class="sidebar" aria-label="Notes list">
+        <div class="sidebarTop">
+          <div class="searchRow">
+            <input class="search" id="searchInput" placeholder="Search notes…" inputmode="search" />
+            <button class="iconBtn" id="clearSearchBtn" title="Clear search" aria-label="Clear search">✕</button>
+          </div>
+
+          <div class="tabs" role="tablist" aria-label="List mode">
+            <button class="tab active" id="tabAll">All</button>
+            <button class="tab" id="tabPinned">Pinned</button>
+            <button class="tab" id="tabArchived">Archived</button>
+          </div>
+
+          <div class="tagFilterRow" id="tagFilterRow" aria-label="Tag filters"></div>
+        </div>
+
+        <div class="list" id="notesList" role="list"></div>
+
+        <div class="sidebarFooter">
+          <div class="tiny" id="countText">0 notes</div>
+          <div class="footerBtns">
+            <button class="btn danger small" id="deleteBtn" disabled>Delete</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Editor -->
+      <section class="editor" aria-label="Editor">
+        <div class="editorHeader">
+          <div class="leftMeta">
+            <div class="chips">
+              <button class="chip" id="pinBtn" disabled title="Pin (Ctrl/Cmd+P)">📌 Pin</button>
+              <button class="chip" id="archiveBtn" disabled>🗃️ Archive</button>
+              <button class="chip" id="restoreBtn" disabled>↩︎ Restore</button>
+              <button class="chip ghost" id="duplicateBtn" disabled>⎘ Duplicate</button>
+            </div>
+            <div class="tiny" id="metaText">—</div>
+          </div>
+
+          <div class="rightTools">
+            <div class="palette" id="colorPalette" aria-label="Note color palette"></div>
+          </div>
+        </div>
+
+        <div class="editorBody" id="editorBody" data-mode="split">
+          <div class="pane paneEdit">
+            <input class="noteTitle" id="titleInput" placeholder="Title" disabled />
+            <div class="tagEditor">
+              <div class="tagList" id="tagList"></div>
+              <input class="tagInput" id="tagInput" placeholder="Add tags… (Enter / comma)" disabled />
+            </div>
+            <textarea class="noteBody" id="bodyInput" placeholder="Write in Markdown…" disabled></textarea>
+          </div>
+
+          <div class="divider" aria-hidden="true"></div>
+
+          <div class="pane panePreview">
+            <div class="previewHeader">
+              <div class="tiny">Preview</div>
+              <button class="iconBtn" id="copyMdBtn" title="Copy markdown" aria-label="Copy markdown">⧉</button>
+            </div>
+            <div class="preview" id="preview"></div>
+          </div>
+        </div>
+
+        <div class="editorFooter">
+          <div class="tiny" id="statsText">—</div>
+          <div class="tiny" id="saveText">—</div>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+
+  <script src="./app.js"></script>
+</body>
+</html>
